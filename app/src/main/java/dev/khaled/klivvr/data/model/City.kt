@@ -14,5 +14,5 @@ data class City(
     val country: String,
     val name: String,
     @SerialName("_id") val id: Long,
-    val coordinates: Coordinates
+    val coord: Coordinates
 )

@@ -26,8 +26,8 @@ class MainRepositoryImpl @Inject constructor(private val context: Context) : Mai
                     id = it.id,
                     name = it.name,
                     country = it.country,
-                    lat = it.coordinates.lat,
-                    lon = it.coordinates.lon
+                    lat = it.coord.lat,
+                    lon = it.coord.lon
                 )
             }
         }
