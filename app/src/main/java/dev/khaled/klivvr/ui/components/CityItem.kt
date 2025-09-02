@@ -1,5 +1,6 @@
 package dev.khaled.klivvr.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,12 +21,15 @@ import dev.khaled.klivvr.domain.model.CityDomainModel
 
 @Composable
 fun CityItem(
-    city: CityDomainModel, modifier: Modifier = Modifier
+    city: CityDomainModel, 
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 48.dp, top = 4.dp, bottom = 4.dp),
+            .padding(start = 48.dp, top = 4.dp, bottom = 4.dp)
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(

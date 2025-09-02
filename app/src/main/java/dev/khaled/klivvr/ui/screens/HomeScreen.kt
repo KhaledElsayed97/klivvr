@@ -1,5 +1,7 @@
 package dev.khaled.klivvr.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.khaled.klivvr.MainViewModel
@@ -20,12 +23,17 @@ import dev.khaled.klivvr.ui.components.CityItem
 import dev.khaled.klivvr.ui.components.ConnectingLine
 import dev.khaled.klivvr.ui.components.StickyHeader
 
+const val playStoreUri = "market://details?id=com.google.android.apps.maps"
+const val externalPlayStoreUri =
+    "https://play.google.com/store/apps/details?id=com.google.android.apps.maps"
+
 @Composable
 fun HomeScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
 
     val cities by viewModel.cities.collectAsState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -33,23 +41,22 @@ fun HomeScreen(
             .padding(all = 16.dp)
     ) {
         Text(
-            text = "Cities",
-            modifier = Modifier.padding(16.dp)
+            text = "Cities", modifier = Modifier.padding(16.dp)
         )
-        
+
         when {
             cities.isEmpty() -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
             }
+
             else -> {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ConnectingLine()
-                    
+
                     LazyColumn {
                         cities.forEachIndexed { _, group ->
                             item {
@@ -59,7 +66,30 @@ fun HomeScreen(
                             }
 
                             items(group.cities) { city ->
-                                CityItem(city = city)
+                                CityItem(city = city, onClick = {
+                                    val mapsIntent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("geo:${city.lat},${city.lon}?q=${city.lat},${city.lon}(${city.name})")
+                                    )
+
+                                    if (mapsIntent.resolveActivity(context.packageManager) != null) {
+                                        context.startActivity(mapsIntent)
+                                    } else {
+                                        val playStoreIntent = Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(playStoreUri)
+                                        )
+                                        if (playStoreIntent.resolveActivity(context.packageManager) != null) {
+                                            context.startActivity(playStoreIntent)
+                                        } else {
+                                            val browserIntent = Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(externalPlayStoreUri)
+                                            )
+                                            context.startActivity(browserIntent)
+                                        }
+                                    }
+                                })
                             }
                         }
                     }
