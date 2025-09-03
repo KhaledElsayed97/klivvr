@@ -23,12 +23,27 @@ class MainViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private var cityTrie: CityTrie? = null
+    private var citiesList: List<CityDomainModel> = emptyList()
 
     init {
+        loadCities()
+    }
+
+    private fun loadCities() {
         viewModelScope.launch {
-            cityTrie = getCitiesUseCase.invoke(R.raw.cities)
-            _cities.value = cityTrie?.getAllCities() ?: emptyList()
+            try {
+                cityTrie = getCitiesUseCase.invoke(R.raw.cities)
+                citiesList = cityTrie?.getAllCities() ?: emptyList()
+                _cities.value = citiesList
+            } catch (e: Exception) {
+                _cities.value = emptyList()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -36,7 +51,7 @@ class MainViewModel @Inject constructor(
         _searchQuery.value = query
 
         _cities.value = if (query.isBlank()) {
-            cityTrie?.getAllCities() ?: emptyList()
+            citiesList
         } else {
             cityTrie?.search(query) ?: emptyList()
         }

@@ -20,6 +20,7 @@ data class TrieNode(
 
 class CityTrie {
     private val root = TrieNode()
+    private val citiesList = mutableListOf<CityDomainModel>()
 
     fun insert(city: CityDomainModel) {
         var current = root
@@ -33,6 +34,8 @@ class CityTrie {
             current = current.children[char]!!
             current.cities.add(city)
         }
+
+        citiesList.add(city)
     }
 
     fun search(prefix: String): List<CityDomainModel> {
@@ -49,21 +52,13 @@ class CityTrie {
     }
 
     fun getAllCities(): List<CityDomainModel> {
-        val allCities = mutableSetOf<CityDomainModel>()
-        collectAllCities(root, allCities)
-        return allCities.toList()
-    }
-
-    private fun collectAllCities(node: TrieNode, cities: MutableSet<CityDomainModel>) {
-        cities.addAll(node.cities)
-        node.children.values.forEach { child ->
-            collectAllCities(child, cities)
-        }
+        return citiesList.toList()
     }
 
     fun clear() {
         root.children.clear()
         root.cities.clear()
+        citiesList.clear()
     }
 }
 
